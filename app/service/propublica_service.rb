@@ -1,14 +1,24 @@
 class PropublicaService
 
-  def self.find_house_members(state)
+  def initialize(state)
+    @state = state
     @conn = Faraday.new(url: "https://api.propublica.org") do |faraday|
-      faraday.headers["X-API-Key"] = ""
+      faraday.headers["X-API-Key"] = ENV["propublica_key"]
       faraday.adapter  Faraday.default_adapter
     end
+  end
 
-    response = @conn.get("/congress/v1/members/house/#{state}/current.json")
+  def find_house_members
+    get_url("/congress/v1/members/house/#{state}/current.json")
+  end
 
-    results = JSON.parse(response.body, symbolize_names: true)[:results]
+  def get_url(url)
+    response = @conn.get(url)
+    JSON.parse(response.body, symbolize_names: true)[:results]
+  end
+
+  def self.find_house_members(state)
+    new(state).find_house_members
   end
 
 end
