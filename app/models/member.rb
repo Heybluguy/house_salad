@@ -1,6 +1,19 @@
-class SearchController < ApplicationController
-  def index
-    state = params[:state]
+class Member
+  attr_reader :name,
+              :role,
+              :party,
+              :district,
+              :seniority
+
+  def initialize(attributes = {})
+    @name       = attributes[:name]
+    @role       = attributes[:role]
+    @party      = attributes[:party]
+    @district   = attributes[:district]
+    @seniority  = attributes[:seniority].to_i
+  end
+
+  def find_all(state)
     @conn = Faraday.new(url: "https://api.propublica.org") do |faraday|
       faraday.headers["X-API-KEY"] = "S9JON3ruNOI6XiyymcnZ7gtsjnToPxuXyT0bgeaX"
       faraday.adapter Faraday.default_adapter
@@ -15,8 +28,6 @@ class SearchController < ApplicationController
     @members  = results.map do |result|
       Member.new(result)
     end
-
   end
-
 
 end
