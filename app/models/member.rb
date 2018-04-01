@@ -1,4 +1,4 @@
-class Member
+class Member < ApplicationRecord
   attr_reader :name,
               :role,
               :party,
@@ -14,20 +14,11 @@ class Member
   end
 
   def find_all(state)
-    @conn = Faraday.new(url: "https://api.propublica.org") do |faraday|
-      faraday.headers["X-API-KEY"] = "S9JON3ruNOI6XiyymcnZ7gtsjnToPxuXyT0bgeaX"
-      faraday.adapter Faraday.default_adapter
+    members = PropublicaService.find_house_members(state).map do |raw_member|
+      Member.new(raw_member)
     end
 
-    response = @conn.get("/congress/v1/members/house/#{state}/current.json")
-
-    @members = JSON.parse(response.body, symbolize_names: true)[:results]
-
-    results = JSON.parse(response.body, symbolize_names: true)[:results]
-
-    @members  = results.map do |result|
-      Member.new(result)
-    end
+    sort_members(members)
   end
 
 end
